@@ -1,14 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const ShortUrl = require('../models/shortUrlModel');
 const { updateCounter } = require('../config/counter');
-const dns = require('node:dns');
-const { lookup } = require('node:dns');
 
 const createUrl = asyncHandler(async (req, res) => {
-  if (!req.body.url) {
-    res.status(400);
-    throw new Error('Please provide a URL');
-  }
   let shortUrl = await ShortUrl.create({
     originalUrl: req.body.url,
     shortUrl: (await updateCounter('urlCounter')).lastValue

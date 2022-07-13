@@ -19,6 +19,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../views/index.html'));
 });
 
+app.post('/api/shorturl', urlValidator);
 app.use('/api/shorturl', require('./routes/shortUrlRoute'));
 app.use(errorHandler);
 
