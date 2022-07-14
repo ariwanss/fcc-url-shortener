@@ -1,15 +1,13 @@
 const asyncHandler = require('express-async-handler');
 const ShortUrl = require('../models/shortUrlModel');
-const { updateCounter } = require('../config/counter');
+const { updateCounter, resetCounter } = require('../config/counter');
 
 const createUrl = asyncHandler(async (req, res) => {
-  console.log(req.originalUrl);
-  console.log('create: ' + req.body.url);
   let shortUrl = await ShortUrl.create({
     originalUrl: req.body.url,
     shortUrl: (await updateCounter('urlCounter')).lastValue
-  })
-  console.log('create: ' + shortUrl.shortUrl);
+  });
+  console.log(`Created ShortUrl {original_url: ${shortUrl.originalUrl}, short_url: ${shortUrl.shortUrl}}`);
   res.json({
     original_url: shortUrl.originalUrl,
     short_url: shortUrl.shortUrl
@@ -17,18 +15,28 @@ const createUrl = asyncHandler(async (req, res) => {
 });
 
 const getUrl = asyncHandler(async (req, res) => {
-  if (req.params.id === 'undefined') {
+  let shortUrl = await ShortUrl.findOne({ shortUrl: Number(req.params.id) });
+  if (!shortUrl) {
     throw new Error('invalid url');
   }
-  console.log(req.originalUrl);
-  console.log('read: ' + req.params.id);
-  let shortUrl = await ShortUrl.findOne({ shortUrl: req.params.id });
-  console.log('read: ' + shortUrl.shortUrl);
-  console.log('read: ' + shortUrl.originalUrl);
   res.redirect(shortUrl.originalUrl);
 });
 
+const getUrls = asyncHandler(async (req, res) => {
+  let urls = (await ShortUrl.find()).map(doc => ({original_url: doc.originalUrl, short_url: doc.shortUrl}));
+  res.json(urls);
+});
+
+const deleteAll = asyncHandler(async (req, res) => {
+  let count = await ShortUrl.deleteMany();
+  let counter = await resetCounter('urlCounter');
+  console.log(`Counter reset, lastValue: ${counter.lastValue}`);
+  res.json(count);
+})
+
 module.exports = {
   createUrl,
-  getUrl
+  getUrl,
+  getUrls,
+  deleteAll
 }
