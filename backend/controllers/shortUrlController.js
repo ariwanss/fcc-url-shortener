@@ -3,11 +3,12 @@ const ShortUrl = require('../models/shortUrlModel');
 const { updateCounter, resetCounter } = require('../config/counter');
 
 const createUrl = asyncHandler(async (req, res) => {
+  console.log('Post: Creating ShortUrl...');
   let shortUrl = await ShortUrl.create({
     originalUrl: req.body.url,
     shortUrl: (await updateCounter('urlCounter')).lastValue
   });
-  console.log(`Created ShortUrl {original_url: ${shortUrl.originalUrl}, short_url: ${shortUrl.shortUrl}}`);
+  console.log(`Post: Created ShortUrl {original_url: ${shortUrl.originalUrl}, short_url: ${shortUrl.shortUrl}}`);
   res.json({
     original_url: shortUrl.originalUrl,
     short_url: shortUrl.shortUrl
@@ -15,10 +16,12 @@ const createUrl = asyncHandler(async (req, res) => {
 });
 
 const getUrl = asyncHandler(async (req, res) => {
+  console.log('Get: Finding URL...')
   let shortUrl = await ShortUrl.findOne({ shortUrl: Number(req.params.id) });
   if (!shortUrl) {
     throw new Error('invalid url');
   }
+  console.log('Get: Found URL')
   res.redirect(shortUrl.originalUrl);
 });
 
