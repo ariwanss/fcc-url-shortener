@@ -17,12 +17,8 @@ const initCounter = async (counterName) => {
   }
 }
 
-const updateCounter = async (counterName) => {
-  try {
-    return await Counter.findOneAndUpdate({name: counterName}, {$inc: {lastValue: 1}}, {new: true});
-  } catch (error) {
-    console.log(error);
-  }
+const updateCounter = (counterName) => {
+  return Counter.findOneAndUpdate({name: counterName}, {$inc: {lastValue: 1}}, {new: true});
 }
 
 module.exports = {
